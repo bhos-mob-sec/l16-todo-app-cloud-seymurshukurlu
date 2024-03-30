@@ -5,23 +5,30 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import az.edu.bhos.l14todoapp.data.TodoRepository
-import az.edu.bhos.l14todoapp.entities.TodoEntity
+import az.edu.bhos.l14todoapp.entities.TodoBundle
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class MainViewModel(
     todoRepo: TodoRepository
 ) : ViewModel() {
 
-    private val _todoEntities: MutableLiveData<List<TodoEntity>> = MutableLiveData()
+    private val _todoBundles: MutableLiveData<List<TodoBundle>> = MutableLiveData()
 
-    val todoEntities: LiveData<List<TodoEntity>>
-        get() = _todoEntities
+    val todoBundles: LiveData<List<TodoBundle>>
+        get() = _todoBundles
 
     init {
+        viewModelScope.launch {
+            todoRepo.syncTodos()
+        }
+
         todoRepo.observeTodoEntries()
-            .onEach {
-                _todoEntities.postValue(it)
+            .onEach { todos ->
+                // todo convert todos to bundles
+
+                _todoBundles.postValue(emptyList())
             }.launchIn(viewModelScope)
     }
 }
